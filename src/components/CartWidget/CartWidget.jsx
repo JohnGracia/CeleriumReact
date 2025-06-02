@@ -1,17 +1,8 @@
 const CartWidget = () => {
     return (
-        <div style={{ position: 'relative' }}>
-            🛒
-            <span style={{
-                position: 'relative',
-                top: -10,
-                right: 6,
-                backgroundColor: 'orange',
-                color: 'white',
-                borderRadius: '50%',
-                padding: '2px 6px',
-                fontSize: '12px'
-            }}>
+        <div className="position-relative">
+            <span role="img" aria-label="Cart" style={{ fontSize: '24px' }}>🛒</span>
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 3
             </span>
         </div>
