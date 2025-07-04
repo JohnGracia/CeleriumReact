@@ -15,7 +15,7 @@ function ItemCount({ stock, initial, onAdd }) {
             </div>
             <button
                 className="btn btn-success mt-2"
-                onClick={() => onAdd(count)}
+                onClick={() => onAdd(count)}  // Pasa la cantidad al contexto
                 disabled={stock === 0}
             >
                 Add to Cart

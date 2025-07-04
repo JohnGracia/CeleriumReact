@@ -1,48 +1,93 @@
 import { useCart } from "../Context/CartContext";
-import { Link, useNavigate } from "react-router-dom";
-import { db, collection, addDoc, doc } from "../../firebaseConfig";
+import { db } from "../../firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
-    const { items, clearCart, totalQty, totalPrice } = useCart();
-    const nav = useNavigate();
+    const {
+        items,
+        removeItem,
+        clearCart,
+        totalQty,
+        totalPrice,
+        updateStock,
+    } = useCart();
+
+    const navigate = useNavigate();
 
     const handleCheckout = async (e) => {
         e.preventDefault();
-        const order = {
-            items,
-            totalQty,
-            totalPrice,
-            createdAt: new Date()
-        };
         try {
+            await updateStock(); // Descuenta stock en Firestore
+            const order = {
+                items,
+                totalQty,
+                totalPrice,
+                createdAt: new Date(),
+            };
             const docRef = await addDoc(collection(db, "orders"), order);
             clearCart();
-            nav(`/checkout/${docRef.id}`);
+            navigate(`/checkout/${docRef.id}`);
         } catch (err) {
-            console.error("Checkout error:", err);
+            console.error("Error al procesar la compra:", err);
+            alert("No se pudo completar la compra: " + err);
         }
     };
 
-    if (items.length === 0)
-        return <p className="mt-5 text-center">El carrito está vacío</p>;
+    if (items.length === 0) {
+        return (
+            <div className="container text-center mt-5">
+                <h2>Tu carrito está vacío</h2>
+                <p>Agrega productos para comenzar tu compra.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="container mt-4">
-            <h2>Tu Carrito</h2>
-            <ul className="list-group mb-3">
-                {items.map(i => (
-                    <li key={i.id} className="list-group-item d-flex justify-content-between">
-                        <div>{i.name} x {i.qty}</div>
-                        <div>${(i.price * i.qty).toFixed(2)}</div>
-                    </li>
-                ))}
-                <li className="list-group-item d-flex justify-content-between">
-                    <strong>Total</strong>
-                    <strong>${totalPrice.toFixed(2)}</strong>
-                </li>
-            </ul>
-            <button className="btn btn-danger me-2" onClick={clearCart}>Vaciar carrito</button>
-            <button className="btn btn-success" onClick={handleCheckout}>Finalizar compra</button>
+        <div className="container my-5">
+            <h2 className="mb-4">Tu carrito</h2>
+            <table className="table table-bordered">
+                <thead className="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio unitario</th>
+                        <th>Total</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items.map((item) => (
+                        <tr key={item.id}>
+                            <td>{item.name}</td>
+                            <td>{item.qty}</td>
+                            <td>${item.price}</td>
+                            <td>${item.price * item.qty}</td>
+                            <td>
+                                <button
+                                    className="btn btn-sm btn-danger"
+                                    onClick={() => removeItem(item.id)}
+                                >
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            <div className="text-end">
+                <p><strong>Cantidad total:</strong> {totalQty}</p>
+                <p><strong>Precio total:</strong> ${totalPrice}</p>
+                <div className="d-flex gap-2 justify-content-end">
+                    <button className="btn btn-outline-danger" onClick={clearCart}>
+                        Vaciar carrito
+                    </button>
+                    <button className="btn btn-success" onClick={handleCheckout}>
+                        Finalizar compra
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

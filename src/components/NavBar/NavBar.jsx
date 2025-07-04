@@ -4,13 +4,13 @@ import logo from '../../assets/celerium-galgo.png';
 import CartWidget from '../CartWidget/CartWidget';
 
 function NavBar() {
-    const categories = ['Uniformes', 'Protecciones', 'Accesorios'];
+    const categories = ['Uniformes', 'Protecciones', 'Accesorios'];  // Lista de categorías
 
     return (
         <nav className="bg-light border-bottom py-2">
             <div className="container-fluid">
                 <div className="d-flex justify-content-between align-items-center">
-                    
+
                     {/* Logo + Título (Izquierda) */}
                     <div className="d-flex align-items-center">
                         <img src={logo} alt="Logo" height="40" className="me-2" />
