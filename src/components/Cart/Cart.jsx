@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
     const {
-        items,
-        removeItem,
+        cart,
+        removeFromCart,
         clearCart,
         totalQty,
         totalPrice,
@@ -20,7 +20,7 @@ export default function Cart() {
         try {
             await updateStock(); // Descuenta stock en Firestore
             const order = {
-                items,
+                items: cart,
                 totalQty,
                 totalPrice,
                 createdAt: new Date(),
@@ -30,11 +30,11 @@ export default function Cart() {
             navigate(`/checkout/${docRef.id}`);
         } catch (err) {
             console.error("Error al procesar la compra:", err);
-            alert("No se pudo completar la compra: " + err);
+            alert("No se pudo completar la compra: " + err.message);
         }
     };
 
-    if (items.length === 0) {
+    if (cart.length === 0) {
         return (
             <div className="container text-center mt-5">
                 <h2>Tu carrito está vacío</h2>
@@ -57,16 +57,16 @@ export default function Cart() {
                     </tr>
                 </thead>
                 <tbody>
-                    {items.map((item) => (
+                    {cart.map((item) => (
                         <tr key={item.id}>
                             <td>{item.name}</td>
-                            <td>{item.qty}</td>
+                            <td>{item.quantity}</td>
                             <td>${item.price}</td>
-                            <td>${item.price * item.qty}</td>
+                            <td>${item.price * item.quantity}</td>
                             <td>
                                 <button
                                     className="btn btn-sm btn-danger"
-                                    onClick={() => removeItem(item.id)}
+                                    onClick={() => removeFromCart(item.id)}
                                 >
                                     Eliminar
                                 </button>

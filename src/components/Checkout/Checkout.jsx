@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { db, doc, getDoc } from "../../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore"; // ✅ getDoc estaba faltando
+import { db } from '../../firebaseConfig'; // ✅ solo importa `db` desde firebaseConfig
 
 export default function Checkout() {
     const { orderId } = useParams();

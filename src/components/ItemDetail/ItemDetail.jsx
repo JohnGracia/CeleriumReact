@@ -1,33 +1,75 @@
 import { useState } from "react";
 import { useCart } from "../Context/CartContext";
-import ItemCount from "../ItemCount/ItemCount";
 import { Link } from "react-router-dom";
 
-export default function ItemDetail({ product }) {
-    const { addItem } = useCart();
+export default function ItemDetail({ item }) {
+    const { addToCart } = useCart();
+    const [count, setCount] = useState(1);
     const [added, setAdded] = useState(false);
 
-    const handleAdd = (qty) => {
-        addItem(product, qty);
-        setAdded(true);
+    const increment = () => count < item.stock && setCount(count + 1);
+    const decrement = () => count > 1 && setCount(count - 1);
+
+    const handleAdd = () => {
+        if (count > 0 && count <= item.stock) {
+            addToCart(item, count);
+            setAdded(true); // Ocultar controles y mostrar opciones
+        }
     };
 
     return (
-        <div className="card mx-auto" style={{ maxWidth: "30rem" }}>
-            <img src={require(`../../assets/${product.image}`)} className="card-img-top" alt={product.name} />
-            <div className="card-body text-center">
-                <h2>{product.name}</h2>
-                <p>{product.description}</p>
-                <p><strong>${product.price}</strong></p>
-                {product.stock > 0 ? (
-                    <ItemCount stock={product.stock} initial={1} onAdd={handleAdd} />
-                ) : <p className="text-danger">Producto sin stock</p>}
-                {added && (
-                    <div className="mt-3">
-                        <p className="text-success">Producto agregado al carrito</p>
-                        <Link to="/cart" className="btn btn-primary">Ir al carrito</Link>
-                    </div>
-                )}
+        <div className="container my-5">
+            <div className="row">
+                <div className="col-md-5">
+                    <img
+                        src={item.image}
+                        alt={item.name}
+                        className="img-fluid rounded"
+                    />
+                </div>
+                <div className="col-md-7">
+                    <h2>{item.name}</h2>
+                    <p>{item.description}</p>
+                    <p><strong>Precio:</strong> ${item.price}</p>
+                    <p><strong>Stock disponible:</strong> {item.stock}</p>
+
+                    {!added ? (
+                        <div className="d-flex align-items-center gap-2 mt-3">
+                            <div className="btn-group" role="group">
+                                <button
+                                    className="btn btn-outline-secondary"
+                                    onClick={decrement}
+                                >
+                                    -
+                                </button>
+                                <span className="btn btn-light">{count}</span>
+                                <button
+                                    className="btn btn-outline-secondary"
+                                    onClick={increment}
+                                >
+                                    +
+                                </button>
+                            </div>
+
+                            <button
+                                className="btn btn-success"
+                                onClick={handleAdd}
+                                disabled={item.stock === 0}
+                            >
+                                Agregar al carrito
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mt-4 d-flex gap-3">
+                            <Link to="/cart" className="btn btn-primary">
+                                Ir al carrito
+                            </Link>
+                            <Link to="/" className="btn btn-outline-secondary">
+                                Seguir comprando
+                            </Link>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

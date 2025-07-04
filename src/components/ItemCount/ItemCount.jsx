@@ -15,10 +15,10 @@ function ItemCount({ stock, initial, onAdd }) {
             </div>
             <button
                 className="btn btn-success mt-2"
-                onClick={() => onAdd(count)}  // Pasa la cantidad al contexto
+                onClick={() => onAdd(count)}
                 disabled={stock === 0}
             >
-                Add to Cart
+                Agregar al carrito
             </button>
         </div>
     );
