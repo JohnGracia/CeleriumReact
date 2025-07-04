@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { db } from '../../firebaseConfig'; // Importa tu configuración de Firebase
+import { collection, getDocs } from 'firebase/firestore';
 import ItemList from '../ItemList/ItemList';
 
 function ItemListContainer() {
@@ -7,90 +9,39 @@ function ItemListContainer() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchProducts = () => {
-const allProducts = [
-    // Uniformes
-    {
-        id: 1,
-        name: 'Licra Pierna Larga',
-        category: 'Uniformes',
-        description: 'Licra deportiva larga para entrenamiento de patinaje.',
-        image: '/assets/licra-larga.jpg'
-    },
-    {
-        id: 2,
-        name: 'Licra Pierna Corta',
-        category: 'Uniformes',
-        description: 'Licra corta ideal para competiciones y clima cálido.',
-        image: '/assets/licra-corta.jpg'
-    },
+    // Función para obtener los productos desde Firestore
+    const fetchProducts = async () => {
+        try {
+            const productsRef = collection(db, 'products'); // Referencia a la colección 'products'
+            const querySnapshot = await getDocs(productsRef); // Obtiene los documentos de la colección
+            const productsList = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                name: doc.data().nombre, // Cambié 'nombre' a 'name'
+                category: doc.data().categoria, // Cambié 'categoria' a 'category'
+                description: doc.data().descripcion, // Cambié 'descripcion' a 'description'
+                image: doc.data().imagen, // Cambié 'imagen' a 'image'
+                price: doc.data().precio, // Cambié 'precio' a 'price'
+                stock: doc.data().stock, // Añadí 'stock' aquí
+            }));
 
-    // Protecciones
-    {
-        id: 3,
-        name: 'Casco de Patinaje',
-        category: 'Protecciones',
-        description: 'Casco ligero y resistente para uso recreativo y profesional.',
-        image: '/assets/casco.jpg'
-    },
-    {
-        id: 4,
-        name: 'Rodilleras',
-        category: 'Protecciones',
-        description: 'Rodilleras acolchadas para entrenamiento seguro.',
-        image: '/assets/rodilleras.jpg'
-    },
-    {
-        id: 5,
-        name: 'Coderas',
-        category: 'Protecciones',
-        description: 'Coderas ergonómicas con ajuste elástico.',
-        image: '/assets/coderas.jpg'
-    },
+            // Filtra los productos por categoría si es necesario
+            const filteredProducts = categoryId
+                ? productsList.filter(p => p.category === categoryId)
+                : productsList;
 
-    // Accesorios
-    {
-        id: 6,
-        name: 'Morral Deportivo',
-        category: 'Accesorios',
-        description: 'Morral resistente para llevar implementos de patinaje.',
-        image: '/assets/morral.jpg'
-    },
-    {
-        id: 7,
-        name: 'Cordones de Alta Resistencia',
-        category: 'Accesorios',
-        description: 'Cordones especiales para botas de patinaje profesional.',
-        image: '/assets/cordones.jpg'
-    },
-    {
-        id: 8,
-        name: 'Llaves Profesionales',
-        category: 'Accesorios',
-        description: 'Herramientas para ajustes de ejes y ruedas.',
-        image: '/assets/llaves.jpg'
-    }
-];
-
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                if (categoryId) {
-                    resolve(allProducts.filter(p => p.category === categoryId));
-                } else {
-                    resolve(allProducts);
-                }
-            }, 1000); // 1 segundo de simulación
-        });
+            setProducts(filteredProducts); // Actualiza el estado con los productos
+            setLoading(false); // Marca la carga como terminada
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            setLoading(false); // Si hay error, termina la carga
+        }
     };
 
+    // Llama a la función fetchProducts cuando el componente se monta o cambia el categoryId
     useEffect(() => {
-        setLoading(true); // comienza carga
-        fetchProducts()
-            .then((data) => {
-                setProducts(data);
-                setLoading(false); // termina carga
-            });
-    }, [categoryId]);
+        setLoading(true); // Inicia el estado de carga
+        fetchProducts(); // Llama a la función para obtener productos
+    }, [categoryId]); // Dependencia: cuando categoryId cambie, se vuelve a ejecutar
 
     return (
         <div className="container mt-4">
@@ -105,7 +56,7 @@ const allProducts = [
                     </div>
                 </div>
             ) : (
-                <ItemList products={products} />
+                <ItemList products={products} /> // Pasa los productos al componente ItemList
             )}
         </div>
     );

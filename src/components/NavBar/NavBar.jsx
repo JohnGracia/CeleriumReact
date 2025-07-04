@@ -24,18 +24,14 @@ function NavBar() {
                         </li>
                         {categories.map((category) => (
                             <li className="nav-item" key={category}>
-                                <Link className="nav-link" to={`/category/${category}`}>
-                                    {category}
-                                </Link>
+                                <Link className="nav-link" to={`/category/${category}`}>{category}</Link>
                             </li>
                         ))}
                     </ul>
 
-                    {/* Carrito a la derecha */}
-                    <div>
-                        <Link to="/cart" className="btn btn-outline-secondary position-relative">
-                            <CartWidget />
-                        </Link>
+                    {/* Carrito (Derecha) */}
+                    <div className="d-flex">
+                        <CartWidget />
                     </div>
                 </div>
             </div>
