@@ -9,7 +9,7 @@ const ItemDetailContainer = () => {
     const { id } = useParams();
 
     useEffect(() => {
-        const ref = doc(db, 'Celerium', 'Catálogo', 'C-001', id); // <-- Ruta exacta al documento
+        const ref = doc(db, 'Celerium', 'Catálogo', 'C-001', id);
         getDoc(ref).then((docSnap) => {
             if (docSnap.exists()) {
                 setItem({ id: docSnap.id, ...docSnap.data() });

@@ -5,33 +5,30 @@ import { db } from '../../firebaseConfig';
 import ItemList from '../ItemList/ItemList';
 
 function ItemListContainer() {
-    const { categoryId } = useParams();  // Obtén el parámetro de categoría de la URL
+    const { categoryId } = useParams();
     const [products, setProducts] = useState([]);  // Estado para almacenar los productos
     const [loading, setLoading] = useState(true);  // Estado para manejar la carga de productos
 
     // Función para obtener los productos desde Firestore
     const fetchProducts = async () => {
         try {
-            // Ruta correcta para acceder a la subcolección dentro de C-001
             const productsRef = collection(db, 'Celerium', 'Catálogo', 'C-001');  // Referencia a la colección
 
-            // Obtén todos los documentos dentro de esta subcolección
             const querySnapshot = await getDocs(productsRef);
 
             // Mapear los documentos a un array de productos
             const productsList = querySnapshot.docs.map(doc => ({
-                id: doc.id,  // 'id' será el identificador del producto (como '001', '002', etc.)
+                id: doc.id,
                 name: doc.data().name,
-                category: doc.data().category,  // La categoría del producto
+                category: doc.data().category,
                 description: doc.data().description,
                 image: doc.data().image,
                 price: doc.data().price,
                 stock: doc.data().stock
             }));
 
-            // Filtrar los productos por categoría si es necesario
             const filteredProducts = categoryId
-                ? productsList.filter(p => p.category === categoryId)  // Filtra por la categoría seleccionada
+                ? productsList.filter(p => p.category === categoryId)
                 : productsList;
 
             setProducts(filteredProducts);  // Actualizar el estado con los productos
@@ -43,11 +40,10 @@ function ItemListContainer() {
         }
     };
 
-    // Llamar a la función fetchProducts cuando el componente se monte o categoryId cambie
     useEffect(() => {
-        setLoading(true);  // Iniciar el estado de carga
-        fetchProducts();  // Llamar a la función para obtener productos
-    }, [categoryId]);  // Dependencia: cuando categoryId cambie, se vuelve a ejecutar
+        setLoading(true);
+        fetchProducts();
+    }, [categoryId]);
 
     return (
         <div className="container mt-4">
@@ -61,7 +57,7 @@ function ItemListContainer() {
                 </div>
             ) : (
                 products.length > 0 ? (
-                    <ItemList products={products} />  // Pasa los productos al componente ItemList
+                    <ItemList products={products} />
                 ) : (
                     <p>No hay productos disponibles en esta categoría.</p>
                 )
